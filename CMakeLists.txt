@@ -22,7 +22,7 @@ message("\nCheckings libraries ..." )
 message(STATUS "cryptopp: " ${CRYPT})
 message("")
 
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall")
 
 file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
