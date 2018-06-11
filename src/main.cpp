@@ -15,6 +15,20 @@
 //	CryptoPP::StringSource("nikita", true, new CryptoPP::HashFilter(sha1, new CryptoPP::HexEncoder(new CryptoPP::StringSink(hashHolder))));
 
 
+std::set<std::string> validAlgorithms {
+    "MD5",
+    "md5",
+    "SHA1",
+    "sha1",
+    "SHA224",
+    "sha224",
+    "SHA256",
+    "sha256",
+    "SHA512",
+    "sha512"
+};
+
+
 template<typename T>
 void getHash(const std::string& sourceString, std::string& hashHolder, T& algorithm)
 {
@@ -31,19 +45,42 @@ void getHash(const std::string& sourceString, std::string& hashHolder, T& algori
 }
 
 
-int main(int argc, char** argv)
+bool checkParameters(int argc, char** argv)
 {
     if(argc < 3) {
-        std::cout << "Cannot run program without parameters." << std::endl;
+        std::cout << "Cannot run program without some parameters" << std::endl;
         return 1;
     } 
+
+    std::ifstream cfg;
+
+    if(!cfg.open(argv[1])) {
+        std::cout << "Cannot open file " << argv[1] << std::endl;
+        retutn false;
+    }
+
+    if(!argv[2]) {
+        std::cout << "Hash for compare not specified" << std::endl;
+        return false;
+    }
+
+    if(argv[3]) {
+        if(validAlgorithms.find(argv[3]) == validAlgorithms.end())
+            std::cout << "Invalid algorithm type";
+            return false;
+    }   
+
+}
+
+int main(int argc, char** argv)
+{
     
     std::string algorithm;
 
     if(argv[3]) {
         algorithm = argv[3];
     } else {
-        std::ifstream config("config.txt");
+        std::ifstream config();
         std::string cfgAlgo;
         config >> cfgAlgo;
         algorithm = cfgAlgo.substr(cfgAlgo.find(':') + 1);
