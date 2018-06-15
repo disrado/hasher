@@ -1,15 +1,19 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <vector>
+#include <set>
 
-#include <integer.h>
-#include <cryptlib.h>
-#include <md5.h>
-#include <sha.h>
-#include <aes.h>
-#include <hex.h>
-#include <config.h>
+#include <nlohmann/json.hpp>
+
+#include <cryptopp/integer.h>
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/md5.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/aes.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/config.h>
+
+#include "ConfigReader.hpp"
 
 //	CryptoPP::MD5 sha1;
 //	CryptoPP::StringSource("nikita", true, new CryptoPP::HashFilter(sha1, new CryptoPP::HexEncoder(new CryptoPP::StringSink(hashHolder))));
@@ -49,15 +53,17 @@ bool checkParameters(int argc, char** argv)
 {
     if(argc < 3) {
         std::cout << "Cannot run program without some parameters" << std::endl;
-        return 1;
+        return false;
     } 
 
     std::ifstream cfg;
 
-    if(!cfg.open(argv[1])) {
-        std::cout << "Cannot open file " << argv[1] << std::endl;
-        retutn false;
-    }
+    cfg.open(argv[1]);
+
+    // if(!) {
+        // std::cout << "Cannot open file " << argv[1] << std::endl;
+        // retutn false;
+    // }
 
     if(!argv[2]) {
         std::cout << "Hash for compare not specified" << std::endl;
@@ -65,33 +71,34 @@ bool checkParameters(int argc, char** argv)
     }
 
     if(argv[3]) {
-        if(validAlgorithms.find(argv[3]) == validAlgorithms.end())
+        if(validAlgorithms.find(argv[3]) == validAlgorithms.end()) {
             std::cout << "Invalid algorithm type";
             return false;
+        }
     }   
 
+    return true;
 }
 
 int main(int argc, char** argv)
 {
-    
     std::string algorithm;
 
     if(argv[3]) {
         algorithm = argv[3];
     } else {
-        std::ifstream config();
-        std::string cfgAlgo;
-        config >> cfgAlgo;
-        algorithm = cfgAlgo.substr(cfgAlgo.find(':') + 1);
-    
-        if(algorithm.empty()) {
+        ConfigReader cfgReader;
+
+        cfgReader.readJSON("config.json");
+
+        algorithm =  cfgReader.getAlgorithmType();
+
+        if(algorithm.empty())
             std::cout << "Algorithm not specified" << std::endl;
-            return 1;
-        }
     }
 
     std::ifstream file(argv[1]);
+
 
     std::stringstream buffer;
     buffer << file.rdbuf();
