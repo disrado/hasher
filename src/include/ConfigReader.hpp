@@ -5,15 +5,13 @@
 using json = nlohmann::json;
 
 
-
 class ConfigReader {
 
 public:
-
     bool readJSON(const std::string& filePath) {
         std::ifstream configFile(filePath);
 
-        if(!configFile.is_open()){
+        if(!configFile.is_open()) {
             std::cout << "Cannot open config file" << std::endl;
             return false;
         }
@@ -21,15 +19,15 @@ public:
         json conf;
         configFile >> conf;
 
-        algorithm = conf.at("algorithm").get<std::string>();
+        algorithmType = conf.at("algorithm").get<std::string>();
     
         return true;    
     }
 
     const std::string& getAlgorithmType() {
-        return algorithm;
+        return algorithmType;
     }
 
 private:
-    std::string algorithm;
+    std::string algorithmType;
 };
