@@ -19,15 +19,19 @@ public:
         json conf;
         configFile >> conf;
 
-        algorithmType = conf.at("algorithm").get<std::string>();
+        m_filePath = conf.at("filepath").get<std::string>();
+        m_hash = conf.at("hash").get<std::string>();
+        m_algorithmType = conf.at("algorithm").get<std::string>();
+        
+        return true;
+    }
+
+    const std::string& getFilePath() const { return m_filePath; }
+    const std::string& getHash() const { return m_hash; }
+    const std::string& getAlgorithmType() const { return m_algorithmType; }
     
-        return true;    
-    }
-
-    const std::string& getAlgorithmType() {
-        return algorithmType;
-    }
-
 private:
-    std::string algorithmType;
+    std::string m_filePath;
+    std::string m_hash;
+    std::string m_algorithmType;
 };

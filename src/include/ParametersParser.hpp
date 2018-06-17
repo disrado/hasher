@@ -21,18 +21,18 @@ public:
         if(paramsCount < 3) {
             std::cout << "Some parameters does't specified" << std::endl;
             return false;
-        } 
+        }
 
         std::ifstream fileToHashing(params[1]);
         if(fileToHashing.is_open()) {
-            filePath = params[1];
+            m_filePath = params[1];
         } else {
             std::cout << "Cannot open file " << params[1] << std::endl;
             return false;
         }
 
         if(params[2]) {
-            hash = params[2];
+            m_hash = params[2];
         } else {
             std::cout << "Hash for compare not specified" << std::endl;
             return false;
@@ -40,7 +40,7 @@ public:
 
         if(params[3]) {
             if(supportedAlgorithms.find(params[3]) != supportedAlgorithms.end()) {
-                algorithmType = params[3];
+                m_algorithmType = params[3];
             } else {
                 std::cout << "Invalid algorithm type";
                 return false;
@@ -50,13 +50,12 @@ public:
         return true;
     }
 
-    const std::string& getFilePath() const { return filePath; }
-    const std::string& getHash() const { return hash; }
-    const std::string& getAlgorithmType() const { return algorithmType; }
+    const std::string& getFilePath() const { return m_filePath; }
+    const std::string& getHash() const { return m_hash; }
+    const std::string& getAlgorithmType() const { return m_algorithmType; }
 
 private:
-    std::string filePath = "";
-    std::string hash = "";
-    std::string algorithmType;
-
+    std::string m_filePath;
+    std::string m_hash;
+    std::string m_algorithmType;
 };
