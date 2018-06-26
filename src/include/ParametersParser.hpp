@@ -17,8 +17,8 @@ std::set<std::string> supportedAlgorithms {
 class ParametersParser {
 
 public:  
-    bool parse(int paramsCount, char** params) {
-        if(paramsCount < 3) {
+    bool parse(int paramsCount, char** params = nullptr) {
+		if(paramsCount < 5) {
             std::cout << "Some parameters does't specified" << std::endl;
             return false;
         }
@@ -42,10 +42,20 @@ public:
             if(supportedAlgorithms.find(params[3]) != supportedAlgorithms.end()) {
                 m_algorithmType = params[3];
             } else {
-                std::cout << "Invalid algorithm type";
+                std::cout << "Unknown algorithm";
                 return false;
             }
-        }   
+        }
+
+		if (params[4]) {
+			try {
+				m_timestep = std::chrono::seconds(std::stoi(params[4]));
+			} 
+			catch (std::exception& e) {
+				std::cout << "Invalid algorithm type\n" << e.what() << std::endl;
+				return false;
+			}
+		}
 
         return true;
     }
@@ -53,9 +63,11 @@ public:
     const std::string& getFilePath() const { return m_filePath; }
     const std::string& getHash() const { return m_hash; }
     const std::string& getAlgorithmType() const { return m_algorithmType; }
+	std::chrono::seconds getTimeStep() const { return m_timestep; }
 
 private:
     std::string m_filePath;
     std::string m_hash;
     std::string m_algorithmType;
+	std::chrono::seconds m_timestep = std::chrono::seconds(0);
 };

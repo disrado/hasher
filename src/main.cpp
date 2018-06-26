@@ -14,6 +14,7 @@
 #include <ConfigReader.hpp>
 #include <ParametersParser.hpp>
 
+typedef std::chrono::seconds seconds;
 
 template<typename T>
 void getHash(const std::string& sourceString, std::string& hashHolder, T& algorithm)
@@ -29,66 +30,95 @@ void getHash(const std::string& sourceString, std::string& hashHolder, T& algori
 
 
 std::shared_ptr<std::string> readFileToString(const std::string filePath) {
-    std::ifstream fileToHashing(filePath);
-    std::stringstream buffer;
-    buffer << fileToHashing.rdbuf();
-    return std::make_shared<std::string>(std::move(buffer.str()));
+	try {
+		std::ifstream fileToHashing(filePath);
+
+		if (!fileToHashing.is_open()) {
+			std::cout << "Cannot open file " << filePath << std::endl;
+			exit(1);
+		}
+
+		std::stringstream buffer;
+		buffer << fileToHashing.rdbuf();
+		return std::make_shared<std::string>(std::move(buffer.str()));
+	}
+	catch (std::exception& e){
+		std::cout << "Cannot read file " << filePath << "\n" << e.what() << std::endl;
+	}
 }
 
 
 int main(int argc, char** argv)
 {
-    ParametersParser paramsParser;
-    ConfigReader cfgReader;
+	ParametersParser paramsParser;
+	ConfigReader cfgReader;
 
-    if(!paramsParser.parse(argc, argv)) {
-        return 1;
-    }
+	if (argc != 1) {
+		if(!paramsParser.parse(argc, argv))
+			return 1;
+	}
 
-    std::string algorithm = paramsParser.getAlgorithmType();
+	std::string algorithm = paramsParser.getAlgorithmType();
 
-    if(algorithm.empty()) {
-        cfgReader.readJSON("config.json");
-        algorithm = cfgReader.getAlgorithmType();
+	if (algorithm.empty()) {
+		if (cfgReader.readJSON("config.json"))
+			algorithm = cfgReader.getAlgorithmType();
+		else
+			return 1;
 
-        if(algorithm.empty())
-            throw std::runtime_error("Algorithm not specified");
-    }
+		if (algorithm.empty()) {
+			std::cout << "Algorithm not specified";
+			return 1;
+		}
+	}
 
-    std::string filePath = (paramsParser.getFilePath() != "") ? paramsParser.getFilePath()
-                                                              : cfgReader.getFilePath(),
-                fileContentHolder, 
-                hash;
+	std::string filePath = (paramsParser.getFilePath() != "") ? paramsParser.getFilePath() : cfgReader.getFilePath(),
+				validHash = (paramsParser.getHash() != "") ? paramsParser.getHash() : cfgReader.getHash(),
+				hash;
+	
+	auto timeStep = (paramsParser.getTimeStep() != seconds(0)) ? paramsParser.getTimeStep() : cfgReader.getTimeStep();
 
-    auto fileContent = readFileToString(filePath);
-    
-    if(algorithm == "MD5" || algorithm == "md5") {
-        CryptoPP::MD5 algo;
-        getHash(*fileContent, hash, algo);
-    } else if(algorithm == "SHA1" || algorithm == "sha1") {
-        CryptoPP::SHA1 algo;
-        getHash(*fileContent, hash, algo);
-    } else if(algorithm == "SHA224" || algorithm == "sha224") {
-        CryptoPP::SHA224 algo;
-        getHash(*fileContent, hash, algo);
-    } else if(algorithm == "SHA256" || algorithm == "sha256") {
-        CryptoPP::SHA256 algo;
-        getHash(*fileContent, hash, algo);
-    } else if(algorithm == "SHA512" || algorithm == "sha512") {
-        CryptoPP::SHA512 algo;
-        getHash(fileContentHolder, hash, algo);
-    } else {
-        std::cout << "Unknown algorithm" << std::endl;
-        return 1;
-    }
+	while(true) {
+		auto fileContent = readFileToString(filePath);
+			
+		if (algorithm == "MD5" || algorithm == "md5") {
+			CryptoPP::MD5 algo;
+			getHash(*fileContent, hash, algo);
+		}
+		else if (algorithm == "SHA1" || algorithm == "sha1") {
+			CryptoPP::SHA1 algo;
+			getHash(*fileContent, hash, algo);
+		}
+		else if (algorithm == "SHA224" || algorithm == "sha224") {
+			CryptoPP::SHA224 algo;
+			getHash(*fileContent, hash, algo);
+		}
+		else if (algorithm == "SHA256" || algorithm == "sha256") {
+			CryptoPP::SHA256 algo;
+			getHash(*fileContent, hash, algo);
+		}
+		else if (algorithm == "SHA512" || algorithm == "sha512") {
+			CryptoPP::SHA512 algo;
+			getHash(*fileContent, hash, algo);
+		}
+		else {
+			std::cout << "Unknown algorithm" << std::endl;
+			return 1;
+		}
 
-    std::string validHash = (paramsParser.getHash() != "") ? paramsParser.getHash() 
-                                                           : cfgReader.getHash();
+		if (hash == validHash)
+			std::cout << "Same hash" << std::endl;
+		else
+			std::cout << "Hash doesn't same" << std::endl
+			<< "Template: " << validHash << std::endl
+			<< "Hash    : " << hash << std::endl;
 
-    if(hash == validHash)
-        std::cout << "Same hash" << std::endl;
-    else
-        std::cout << "Hash doesn't same" << std::endl
-                  << "Template: " << paramsParser.getHash() << std::endl
-                  << "Hash    : " << hash << std::endl;
+
+		hash.clear();
+
+		if (timeStep > seconds(0))
+			std::this_thread::sleep_for(timeStep);
+		else
+			break;
+	}
 }

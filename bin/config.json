@@ -1,5 +1,6 @@
 {
-    "filepath": "",
-    "hash": "",
-    "algorithm": "sha512"
+	"filepath": "C:/Users/nik/Desktop/ex.txt",
+	"hash" : "BEC8BD6C6E8C6513425542F507C4423B03E88890",
+	"algorithm" : "SHA1",
+	"timestep" : 2
 }
