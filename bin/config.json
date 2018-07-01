@@ -1,6 +1,8 @@
 {
-	"filepath": "C:/Users/nik/Desktop/ex.txt",
-	"hash" : "BEC8BD6C6E8C6513425542F507C4423B03E88890",
+	"files": {
+		"/home/nik/.emacs": "AD90BDF818D67CBD4B9D281995283339CD8A0BAB",
+		"/home/nik/.xinitrc": "3D0330912631E015FC0EC28E3CEB7C11EAC2CCA5"
+	},
 	"algorithm" : "SHA1",
 	"timestep" : 2
 }
