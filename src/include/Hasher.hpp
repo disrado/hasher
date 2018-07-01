@@ -18,11 +18,10 @@ typedef std::map<std::string, std::string> StringMap;
 
 std::string readFileToString(const std::string&);
 
-
 class Hasher {
 
 public:
-    StringMap computeHashes(const std::vector<std::string>& files, const std::string& algorithm) {
+    StringMap computeHashes(const std::vector<std::string>& files, std::string algorithmName) {
         StringMap fileHashPairs;
 
         for(auto& filePath : files) {
@@ -34,29 +33,28 @@ public:
                 fileHashPairs.emplace(filePath, "Cannot read file");
             }
 
-            std::string algorithmName = algorithm;
             std::transform(algorithmName.begin(), algorithmName.end(), algorithmName.begin(), ::tolower);
 
             if (algorithmName == "md5") {
                 CryptoPP::MD5 algo;
                 
-                fileHashPairs.emplace(filePath, getHash(fileContent, algo));
+                fileHashPairs.emplace(filePath, getHashFromString(fileContent, algo));
             }
             else if (algorithmName == "sha1") {
                 CryptoPP::SHA1 algo;
-                fileHashPairs.emplace(filePath, getHash(fileContent, algo));
+                fileHashPairs.emplace(filePath, getHashFromString(fileContent, algo));
             }
             else if (algorithmName == "sha224") {
                 CryptoPP::SHA224 algo;
-                fileHashPairs.emplace(filePath, getHash(fileContent, algo));
+                fileHashPairs.emplace(filePath, getHashFromString(fileContent, algo));
             }
             else if (algorithmName == "sha256") {
                 CryptoPP::SHA256 algo;
-                fileHashPairs.emplace(filePath, getHash(fileContent, algo));
+                fileHashPairs.emplace(filePath, getHashFromString(fileContent, algo));
             }
             else if (algorithmName == "sha512") {
                 CryptoPP::SHA512 algo;
-                fileHashPairs.emplace(filePath, getHash(fileContent, algo));
+                fileHashPairs.emplace(filePath, getHashFromString(fileContent, algo));
             }
             else {
                 std::cout << "Unknown algorithm" << std::endl;
@@ -67,7 +65,7 @@ public:
     }
 
     template<typename T>
-    std::string getHash(const std::string& sourceString, T& algorithm)
+    std::string getHashFromString(const std::string& sourceString, T& algorithm)
     {
         CryptoPP::byte digest[T::DIGESTSIZE];
         algorithm.CalculateDigest(digest, (CryptoPP::byte*)sourceString.c_str(), sourceString.length());
@@ -80,6 +78,30 @@ public:
 
         return hash;
     }
+private:
+    template<typename T>
+    T& getAlgorithm(const std::string& algorithmName) {
+
+        if (algorithmName == "md5") {
+            CryptoPP::MD5 algo;
+        }
+        else if (algorithmName == "sha1") {
+            CryptoPP::SHA1 algo;
+        }
+        else if (algorithmName == "sha224") {
+            CryptoPP::SHA224 algo;
+        }
+        else if (algorithmName == "sha256") {
+            CryptoPP::SHA256 algo;
+        }
+        else if (algorithmName == "sha512") {
+            CryptoPP::SHA512 algo;
+        }
+        else {
+            throw std::runtime_error("Unknown algorithm");
+        }
+    }
+
 };
 
 std::string readFileToString(const std::string& filePath) {
