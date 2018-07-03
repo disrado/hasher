@@ -29,5 +29,11 @@
     <ClInclude Include="..\..\src\include\ParametersParser.hpp">
       <Filter>Исходные файлы\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\include\Hasher.hpp">
+      <Filter>Исходные файлы\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\include\functions.hpp">
+      <Filter>Исходные файлы\include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
