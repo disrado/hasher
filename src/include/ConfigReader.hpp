@@ -11,7 +11,16 @@ using json = nlohmann::json;
 
 class ConfigReader {
 
+private:
+	ConfigReader() {};
+
 public:
+	static ConfigReader& getInstance()
+	{
+		static ConfigReader instance;
+		return instance;
+	}
+
     bool readJSON(const std::string& filePath) {
         std::ifstream configFile(filePath);
 
@@ -27,6 +36,12 @@ public:
 
             m_algorithmType = conf.at("algorithm").get<std::string>();
             m_timestep = std::chrono::seconds(conf.at("timestep").get<uint64_t>());
+
+			if (m_fileHashPairs.empty())
+				throw std::runtime_error("Files not specified");
+
+			if(m_algorithmType.empty())
+				throw std::runtime_error("Algorithm not specified");
         }
         catch (std::exception& e) {
             std::cout << "Error while reading config file\n" << e.what() << std::endl;

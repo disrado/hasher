@@ -1,73 +1,79 @@
 #pragma once
 
 #include <iostream>
-#include <fstream>
 #include <set>
 
+#include <functions.hpp>
 
 std::set<std::string> supportedAlgorithms {
-    "MD5", "md5",
-    "SHA1", "sha1",
-    "SHA224", "sha224",
-    "SHA256", "sha256",
-    "SHA512", "sha512"
+    "md5",
+    "sha1",
+    "sha224",
+    "sha256",
+    "sha512"
 };
 
 
 class ParametersParser {
 
-public:  
-    bool parse(int paramsCount, char** params = nullptr) {
-		if(paramsCount < 5) {
-            std::cout << "Some parameters does't specified" << std::endl;
-            return false;
-        }
+private:
+	ParametersParser() {};
 
-        std::ifstream fileToHashing(params[1]);
-        if(fileToHashing.is_open()) {
-            m_filePath = params[1];
-        } else {
-            std::cout << "Cannot open file " << params[1] << std::endl;
-            return false;
-        }
+public:
+	static ParametersParser& getInstance()
+	{
+		static ParametersParser instance;
+		return instance;
+	}
 
-        if(params[2]) {
-            m_hash = params[2];
-        } else {
-            std::cout << "Hash for compare not specified" << std::endl;
-            return false;
-        }
+    void parse(int paramsCount, char** params = nullptr) {
 
-        if(params[3]) {
-            if(supportedAlgorithms.find(params[3]) != supportedAlgorithms.end()) {
-                m_algorithmType = params[3];
-            } else {
-                std::cout << "Unknown algorithm";
-                return false;
-            }
-        }
+		std::string key(params[1]);
 
-		if (params[4]) {
-			try {
-				m_timestep = std::chrono::seconds(std::stoi(params[4]));
-			} 
-			catch (std::exception& e) {
-				std::cout << "Invalid algorithm type\n" << e.what() << std::endl;
-				return false;
+		if (key == "-h" || key == "--help") {
+			printMan();
+			exit(0);
+		}
+		else if (key == "-f") {
+
+			if (paramsCount != 4) {
+				std::cout << "Some parameters are not specified. Try use -h or --help for more info";
+				exit(1);
+			}
+
+			m_filePath = params[2];
+			std::string algorithm(params[3]);
+
+			if (m_filePath.empty()) {
+				std::cout << "File path not specified. Try use -h or --help for more info" << std::endl;
+				exit(1);
+			}
+
+			if (algorithm.empty()) {
+				std::cout << "Algorithm name not specified. Try use -h or --help for more info" << std::endl;
+				exit(1);
+			}
+
+			std::transform(algorithm.begin(), algorithm.end(), algorithm.begin(), ::tolower);
+
+			if (supportedAlgorithms.find(algorithm) != supportedAlgorithms.end()) {
+				m_algorithmType = algorithm;
+			}
+			else {
+				std::cout << "Invalid algorithm name. Try use -h or --help for more info" << std::endl;
+				exit(1);
 			}
 		}
-
-        return true;
+		else {
+			std::cout << "Unknown parameter. Try use -h or --help for more info";
+			exit(1);
+		}
     }
 
-    const std::string& getFilePath() const { return m_filePath; }
-    const std::string& getHash() const { return m_hash; }
-    const std::string& getAlgorithmType() const { return m_algorithmType; }
-	std::chrono::seconds getTimeStep() const { return m_timestep; }
+	const std::string& getFilePath() const { return m_filePath; }
+	const std::string& getAlgorithmType() const { return m_algorithmType; }
 
 private:
-    std::string m_filePath;
-    std::string m_hash;
-    std::string m_algorithmType;
-	std::chrono::seconds m_timestep = std::chrono::seconds(0);
+	std::string m_filePath = "";
+    std::string m_algorithmType = "";
 };

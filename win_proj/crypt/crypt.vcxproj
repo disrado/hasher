@@ -23,6 +23,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\include\ConfigReader.hpp" />
+    <ClInclude Include="..\..\src\include\functions.hpp" />
+    <ClInclude Include="..\..\src\include\Hasher.hpp" />
     <ClInclude Include="..\..\src\include\ParametersParser.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
